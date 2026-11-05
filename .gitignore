@@ -1,0 +1,17 @@
+node_modules/
+dist/
+client/dist/
+runtime/
+.databricks/
+.env
+.env.*
+!.env.example
+customer-config.json
+server/deployment-config.json
+client/src/customer-config.json
+databricks.yml
+*.tsbuildinfo
+.DS_Store
+coverage/
+
+release/

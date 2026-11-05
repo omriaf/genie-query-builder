@@ -1,0 +1,16 @@
+{
+  "app_name": "customer-query-builder",
+  "customer_name": "My customer",
+  "warehouse_id": "0000000000000000",
+  "genie_space_id": "00000000000000000000000000000000",
+  "catalog": "customer_catalog",
+  "schema": "customer_data",
+  "telemetry_table": "customer_catalog.app_telemetry.query_calls",
+  "advisor_endpoint": "databricks-claude-haiku-4-5",
+  "questions": [
+    "Show the daily active tag count over the last 14 days",
+    "Compare asset coverage by category",
+    "Which zones have the most low battery tags?",
+    "What is the revenue impact of missing assets? Explain what data the administrator must add if revenue is unavailable."
+  ]
+}
