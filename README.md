@@ -2,6 +2,8 @@
 
 Turn business questions into SQL that can be reused in your dashboard platform. This standalone app connects to **one existing Databricks Genie agent** (also called a Genie space).
 
+> **Disclaimer:** This project is a demo and a starting point. Teams adopting it can adapt it to their needs and are responsible for validating their setup and tracking usage, performance, and costs.
+
 Two pages are included:
 
 - **Query Builder:** ask a question, read the answer, copy formatted SQL, inspect results and see a suggested chart. An AI advisor suggests data additions or query-design improvements.
@@ -164,7 +166,3 @@ For local development, copy `.env.example` to `.env`, set your chosen CLI profil
 This is a trusted-user demonstration. One Genie agent does not automatically enforce end-user data entitlements. Runtime queries use the app identity. Limit app access to intended users; add server-side authorization before exposing sensitive data externally. Tracking Calls should be restricted appropriately. No broad Databricks token is returned to the browser by this app's custom routes.
 
 DAB is the recommended repeatable deployment. Direct Apps deployment can use the staged `runtime/` directory with equivalent resource attachments and grants. Running on your own hosting requires adapting authentication, verified user identity and authorization.
-
-## Disclaimer
-
-This project is a demo and a starting point. Teams adopting it can adapt it to their needs and are responsible for validating their setup and tracking usage, performance, and costs.
