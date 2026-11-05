@@ -1,5 +1,5 @@
 {
-  "name": "wiliot-customer-app",
+  "name": "genie-query-builder",
   "version": "1.0.0",
   "main": "dist/server.js",
   "type": "module",

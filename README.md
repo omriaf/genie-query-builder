@@ -30,8 +30,8 @@ On your computer, install **Node.js 22+**, npm, Git and a current Databricks CLI
 ## 2. Fill in one configuration file
 
 ```bash
-git clone https://github.com/omriaf/wiliot-genie-query-builder.git
-cd wiliot-genie-query-builder
+git clone https://github.com/omriaf/genie-query-builder.git
+cd genie-query-builder
 npm ci --ignore-scripts
 cp customer-config.example.json customer-config.json
 ```
@@ -131,9 +131,9 @@ npm run check:public
 npm run package:source
 ```
 
-Upload the contents of **`release/wiliot-customer-app/`** to the repository, or extract `release/wiliot-customer-app.tar.gz`. This clean source copy excludes local configuration, environment files, generated bundles, runtime builds, dependencies and development history. It includes this README, example configuration, source, tests and lockfile. No repository is published automatically.
+Upload the contents of **`release/genie-query-builder/`** to the repository, or extract `release/genie-query-builder.tar.gz`. This clean source copy excludes local configuration, environment files, generated bundles, runtime builds, dependencies and development history. It includes this README, example configuration, source, tests and lockfile. No repository is published automatically.
 
-The source scan checks for common credential/private-workspace/developer-path patterns; review files and third-party licenses before publication. Wiliot branding requires permission to redistribute. Choose an appropriate source license before making the repository public; no trademark or third-party license rights are granted here.
+The source scan checks for common credential/private-workspace/developer-path patterns; review files and third-party licenses before publication. Choose an appropriate source license before making the repository public; no trademark or third-party license rights are granted here.
 
 For build-only verification without real IDs: `node scripts/configure.mjs --example`, then `npm run stage` and `npm test`. Example mode does not produce a working customer deployment.
 
@@ -143,4 +143,4 @@ For local development, copy `.env.example` to `.env`, set your chosen CLI profil
 
 This is a trusted-user demonstration. One Genie agent does not automatically enforce end-user data entitlements. Runtime queries use the app identity. Limit app access to intended users; add server-side authorization before exposing sensitive data externally. Tracking Calls should be restricted appropriately. No broad Databricks token is returned to the browser by this app's custom routes.
 
-DAB is the recommended repeatable deployment. Direct Apps deployment can use the staged `runtime/` directory with equivalent resource attachments and grants. Running on Wiliot-managed hosting requires adapting authentication, verified user identity and authorization.
+DAB is the recommended repeatable deployment. Direct Apps deployment can use the staged `runtime/` directory with equivalent resource attachments and grants. Running on your own hosting requires adapting authentication, verified user identity and authorization.

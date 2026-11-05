@@ -45,7 +45,7 @@ const resources = [
  {name:'advisor-model',serving_endpoint:{name:c.advisor_endpoint,permission:'CAN_QUERY'}},
  ...c.customers.map((t,i)=>({name:`customer-genie-${i+1}`,genie_space:{name:t.name,space_id:t.genie_space_id,permission:'CAN_RUN'}})),
 ];
-const bundle = {bundle:{name:'wiliot-customer-app'},sync:{include:['runtime/**'],exclude:['node_modules/**','client/**','server/**','scripts/**','customer-config.json','.env*']},resources:{apps:{app:{name:c.app_name,description:'Natural language SQL builder and usage tracking',source_code_path:'./runtime',resources}}},targets:{dev:{default:true}}};
+const bundle = {bundle:{name:'genie-query-builder'},sync:{include:['runtime/**'],exclude:['node_modules/**','client/**','server/**','scripts/**','customer-config.json','.env*']},resources:{apps:{app:{name:c.app_name,description:'Natural language SQL builder and usage tracking',source_code_path:'./runtime',resources}}},targets:{dev:{default:true}}};
 writeFileSync('databricks.yml',JSON.stringify(bundle,null,2)+'\n');
 mkdirSync('runtime',{recursive:true});
 writeFileSync('runtime/app.yaml', 'command: ["node", "dist/server.js"]\nenv:\n  - name: NODE_ENV\n    value: production\n  - name: DATABRICKS_WAREHOUSE_ID\n    valueFrom: sql-warehouse\n');

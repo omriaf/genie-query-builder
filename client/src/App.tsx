@@ -90,7 +90,6 @@ export default function App() {
   const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory());
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('answer');
-  const [logoFailed, setLogoFailed] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
 
@@ -192,7 +191,7 @@ export default function App() {
   const navStyle = (active: boolean): CSSProperties => ({ ...reset, width: '100%', border: 0, borderRadius: 12, padding: '11px 13px', display: 'flex', alignItems: 'center', gap: 10, background: active ? '#1a1035' : 'transparent', color: active ? '#fff' : '#6b7280', fontWeight: 700, textAlign: 'left' });
   return <div className="app-shell" style={{ minHeight: '100vh', maxWidth: '100%', boxSizing: 'border-box', overflowX: 'hidden', background: '#ede8f0', color: '#1a1035', fontFamily: "'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", display: 'flex', gap: 22, padding: 20 }}>
     <aside className="sidebar" style={{ ...card, width: 240, flex: '0 0 240px', minHeight: 'calc(100vh - 40px)', padding: 18, display: 'flex', flexDirection: 'column', gap: 28 }}>
-      <div style={{ padding: '8px 8px 14px' }}>{logoFailed ? <div style={{ fontSize: 27, fontWeight: 850, fontStyle: 'italic', color: '#1a1035' }}>wiliot</div> : <img src="/wiliot-logo.png" alt="Wiliot" style={{ height: 34, width: 136, objectFit: 'contain', objectPosition: 'left', filter: 'brightness(0) saturate(100%)' }} onError={() => setLogoFailed(true)} />}<div style={{ marginTop: 10, color: '#9ca3af', fontSize: 11, letterSpacing: .5 }}>PHYSICAL AI PLATFORM</div></div>
+      <div style={{ padding: "8px 8px 14px" }}><div style={{ fontSize: 24, fontWeight: 800 }}>Genie Query Builder</div><div style={{ marginTop: 10, color: "#6b7280", fontSize: 12 }}>Ask · Explore · Build</div></div>
       <nav aria-label="Main navigation" style={{ display: 'grid', gap: 7 }}><button type="button" style={navStyle(page === 'query')} onClick={() => setPage('query')}><Sparkles size={18} />Query Builder</button><button type="button" style={navStyle(page === 'dashboard')} onClick={() => setPage('dashboard')}><BarChart2 size={18} />Tracking Calls</button></nav>
       <section aria-label="Recent questions" style={{ display: 'grid', gap: 8, minHeight: 0 }}>
         <div style={{ color: '#9ca3af', fontSize: 11, letterSpacing: '0.08em', fontWeight: 700 }}>RECENT</div>
@@ -234,7 +233,7 @@ export default function App() {
         </div>
       </section>}
       {result?.advisor?.recommendation && <RecommendationCard recommendation={result.advisor.recommendation} />}
-      <footer style={{ textAlign: 'center', fontSize: 12, color: '#475569', padding: '10px 0 2px' }}><Sparkles size={12} style={{ display: 'inline', marginRight: 6, verticalAlign: -2 }} />Wiliot Physical AI · Powered by Databricks Genie</footer>
+      <footer style={{ textAlign: 'center', fontSize: 12, color: '#475569', padding: '10px 0 2px' }}><Sparkles size={12} style={{ display: 'inline', marginRight: 6, verticalAlign: -2 }} />Powered by Databricks Genie</footer>
       </>}
     </main>
   </div>;
