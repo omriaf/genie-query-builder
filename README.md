@@ -9,6 +9,35 @@ Two pages are included:
 
 No customer selector, custom dashboard data contract, or embedded-dashboard setup is required.
 
+## High-level architecture
+
+```mermaid
+flowchart TB
+    User[Business user] --> UI
+    subgraph App[Databricks App]
+        UI[Query Builder and Tracking Calls]
+        API[Application backend]
+        UI <-->|Questions, answers, SQL and charts| API
+    end
+    subgraph Workspace[Customer Databricks workspace]
+        Genie[Genie agent: Text-to-SQL engine]
+        SQL[SQL warehouse]
+        Data[Governed tables and views / metric views]
+        Advisor[AI advisor: model-serving endpoint]
+        Logs[Delta interaction tracking table]
+    end
+    API <-->|Business question / generated SQL and answer| Genie
+    Genie -->|Execute generated SQL| SQL
+    API <-->|Preview results / read metadata| SQL
+    SQL <-->|Query approved data| Data
+    API <-->|Question, SQL and metadata / recommendations and chart suggestion| Advisor
+    Skills[Public Databricks SQL and metric-view guidance] -->|Advisor context loaded by backend| API
+    SQL <-->|Write interactions / read tracking statistics| Logs
+    UI -->|Copy SQL for reuse| BI[Your dashboard platform]
+```
+
+Genie is the core Text-to-SQL engine. The app previews its SQL and renders results; the advisor recommends a chart and flags missing data or possible query-design improvements. Tracking Calls reads completed interaction records, timings and advisor token usage from the Delta table. Backend requests use the app service principal and its configured permissions.
+
 ## 1. What you must provide
 
 Prepare these resources **in your own Databricks workspace** before deployment:
