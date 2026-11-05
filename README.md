@@ -1,42 +1,33 @@
-# Genie Query Builder — single-customer edition
+# Genie Query Builder
 
-Turn business questions into SQL that can be reused in your dashboard platform. This standalone app connects **one customer to one existing Databricks Genie agent** (also called a Genie space).
+Turn business questions into SQL that can be reused in your dashboard platform. This standalone app connects to **one existing Databricks Genie agent** (also called a Genie space).
 
 Two pages are included:
 
 - **Query Builder:** ask a question, read the answer, copy formatted SQL, inspect results and see a suggested chart. An AI advisor suggests data additions or query-design improvements.
 - **Tracking Calls:** inspect completed questions, user attribution, response time, SQL preview time and advisor token usage.
 
-No customer selector, custom dashboard data contract, or embedded-dashboard setup is required.
+Configure one Genie agent to get started.
 
 ## High-level architecture
 
 ```mermaid
-flowchart TB
-    User[Business user] --> UI
-    subgraph App[Databricks App]
-        UI[Query Builder and Tracking Calls]
-        API[Application backend]
-        UI <-->|Questions, answers, SQL and charts| API
+flowchart LR
+    User[User] --> App
+    subgraph Workspace[Databricks workspace]
+        App[Query Builder app]
+        Genie[Genie: Text-to-SQL]
+        Data[Tables and metric views]
+        Advisor[AI advisor with skills]
+        Tracking[Interaction tracking]
+        App <--> Genie
+        Genie --> Data
+        App <--> Advisor
+        App --> Tracking
     end
-    subgraph Workspace[Customer Databricks workspace]
-        Genie[Genie agent: Text-to-SQL engine]
-        SQL[SQL warehouse]
-        Data[Governed tables and views / metric views]
-        Advisor[AI advisor: model-serving endpoint]
-        Logs[Delta interaction tracking table]
-    end
-    API <-->|Business question / generated SQL and answer| Genie
-    Genie -->|Execute generated SQL| SQL
-    API <-->|Preview results / read metadata| SQL
-    SQL <-->|Query approved data| Data
-    API <-->|Question, SQL and metadata / recommendations and chart suggestion| Advisor
-    Skills[Public Databricks SQL and metric-view guidance] -->|Advisor context loaded by backend| API
-    SQL <-->|Write interactions / read tracking statistics| Logs
-    UI -->|Copy SQL for reuse| BI[Your dashboard platform]
 ```
 
-Genie is the core Text-to-SQL engine. The app previews its SQL and renders results; the advisor recommends a chart and flags missing data or possible query-design improvements. Tracking Calls reads completed interaction records, timings and advisor token usage from the Delta table. Backend requests use the app service principal and its configured permissions.
+Genie turns questions into SQL over governed data. The advisor suggests visualizations and improvements. The app records usage and timings. SQL runs on a SQL warehouse.
 
 ## 1. What you must provide
 
@@ -47,14 +38,14 @@ Prepare these resources **in your own Databricks workspace** before deployment:
 | Workspace URL | Your workspace browser address, e.g. `https://YOUR_WORKSPACE_HOST`. Used when logging into the CLI. |
 | SQL warehouse ID | Open SQL Warehouses → your warehouse → connection details. A 16-character ID, not its name or HTTP path. |
 | Genie agent/space ID | Open your prepared Genie agent. Copy its 32-character ID from the URL. First confirm it answers questions correctly in the Databricks UI. |
-| Data catalog and schema | The existing governed data location used by that Genie agent, e.g. `customer_catalog.customer_data`. Used to provide live metadata to the advisor. |
-| Telemetry schema | A pre-created schema where the app can create its interaction log table, e.g. `customer_catalog.app_telemetry`. |
+| Data catalog and schema | The existing governed data location used by that Genie agent, e.g. `analytics_catalog.business_data`. Used to provide live metadata to the advisor. |
+| Telemetry schema | A pre-created schema where the app can create its interaction log table, e.g. `analytics_catalog.app_telemetry`. |
 | Advisor serving endpoint | An existing endpoint supporting chat messages and JSON responses. The example uses `databricks-claude-haiku-4-5`; verify availability in your workspace or supply a compatible endpoint. |
 | Deployment permissions | Permission to create a Databricks App, attach the warehouse/Genie/model resources, and grant its service principal access to the approved data. Your administrator may handle the grants. |
 
 On your computer, install **Node.js 22+**, npm, Git and a current Databricks CLI supporting Apps and Genie bundle resources.
 
-**You do not need to provide a PAT, client secret, embedded dashboard, or additional customers.** Databricks Apps supplies its runtime service-principal credentials. Local development uses your explicitly selected CLI profile.
+**You do not need to provide a PAT, client secret, embedded dashboard.** Databricks Apps supplies its runtime service-principal credentials. Local development uses your explicitly selected CLI profile.
 
 ## 2. Fill in one configuration file
 
@@ -62,20 +53,20 @@ On your computer, install **Node.js 22+**, npm, Git and a current Databricks CLI
 git clone https://github.com/omriaf/genie-query-builder.git
 cd genie-query-builder
 npm ci --ignore-scripts
-cp customer-config.example.json customer-config.json
+cp app-config.example.json app-config.json
 ```
 
-Edit `customer-config.json`:
+Edit `app-config.json`:
 
 ```json
 {
-  "app_name": "customer-query-builder",
-  "customer_name": "My customer",
+  "app_name": "genie-query-builder",
+  "display_name": "My workspace",
   "warehouse_id": "REPLACE_WITH_WAREHOUSE_ID",
   "genie_space_id": "REPLACE_WITH_GENIE_SPACE_ID",
-  "catalog": "customer_catalog",
-  "schema": "customer_data",
-  "telemetry_table": "customer_catalog.app_telemetry.query_calls",
+  "catalog": "analytics_catalog",
+  "schema": "business_data",
+  "telemetry_table": "analytics_catalog.app_telemetry.query_calls",
   "advisor_endpoint": "databricks-claude-haiku-4-5",
   "questions": ["Show the daily active tag count over the last 14 days"]
 }
@@ -109,13 +100,13 @@ Use your own chosen CLI profile in every command. `configure` validates settings
 From `apps get` or the Apps UI, obtain the new app's **service-principal application ID**. Ask your administrator to grant it the following, substituting your names:
 
 ```sql
-GRANT USE CATALOG ON CATALOG customer_catalog TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
-GRANT USE SCHEMA ON SCHEMA customer_catalog.customer_data TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
+GRANT USE CATALOG ON CATALOG analytics_catalog TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
+GRANT USE SCHEMA ON SCHEMA analytics_catalog.business_data TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
 -- Repeat for every approved object the Genie agent needs.
-GRANT SELECT ON TABLE customer_catalog.customer_data.approved_view TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
+GRANT SELECT ON TABLE analytics_catalog.business_data.approved_view TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
 
-GRANT USE SCHEMA ON SCHEMA customer_catalog.app_telemetry TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
-GRANT CREATE TABLE ON SCHEMA customer_catalog.app_telemetry TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
+GRANT USE SCHEMA ON SCHEMA analytics_catalog.app_telemetry TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
+GRANT CREATE TABLE ON SCHEMA analytics_catalog.app_telemetry TO `APP_SERVICE_PRINCIPAL_APPLICATION_ID`;
 ```
 
 For a telemetry table created by another identity, also grant `SELECT` and `MODIFY` on that table. Repeat catalog grants when using multiple catalogs. Use approved tables/views rather than broad raw-data grants.
@@ -145,7 +136,7 @@ Open the returned app URL. Ask a question you already verified in Genie. Confirm
 
 ## What the tracking means
 
-- Each completed run logs the question preview, Genie conversation ID, customer label, proxy-supplied user email, timings, recommendation and advisor tokens. Failed/aborted runs are not a complete audit trail.
+- Each completed run logs the question preview, Genie conversation ID, workspace label, proxy-supplied user email, timings, recommendation and advisor tokens. Failed/aborted runs are not a complete audit trail.
 - SQL time measures the app's preview execution, including statement submission/polling. It is distinct from Genie processing and is not a guaranteed production dashboard runtime. The app may rerun generated SQL for preview.
 - Advisor token counts come from the endpoint response; missing usage may appear as zero. Dollar figures are reference-price estimates, not invoices.
 - **Genie token counts, DBUs and costs are not inferred.** Genie cost is unavailable. SQL warehouse and Apps compute charges require separate billing reconciliation.
@@ -164,7 +155,7 @@ Upload the contents of **`release/genie-query-builder/`** to the repository, or 
 
 The source scan checks for common credential/private-workspace/developer-path patterns; review files and third-party licenses before publication. Choose an appropriate source license before making the repository public; no trademark or third-party license rights are granted here.
 
-For build-only verification without real IDs: `node scripts/configure.mjs --example`, then `npm run stage` and `npm test`. Example mode does not produce a working customer deployment.
+For build-only verification without real IDs: `node scripts/configure.mjs --example`, then `npm run stage` and `npm test`. Example mode does not produce a working deployment.
 
 For local development, copy `.env.example` to `.env`, set your chosen CLI profile and run `npm run dev`. Your local identity needs equivalent permissions.
 

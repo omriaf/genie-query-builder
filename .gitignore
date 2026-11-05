@@ -6,9 +6,9 @@ runtime/
 .env
 .env.*
 !.env.example
-customer-config.json
+app-config.json
 server/deployment-config.json
-client/src/customer-config.json
+client/src/app-config.json
 databricks.yml
 *.tsbuildinfo
 .DS_Store

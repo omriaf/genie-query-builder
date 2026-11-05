@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 const example = process.argv.includes('--example');
-const path = example ? 'customer-config.example.json' : (process.argv[2] ?? 'customer-config.json');
+const path = example ? 'app-config.example.json' : (process.argv[2] ?? 'app-config.json');
 const input = JSON.parse(readFileSync(path, 'utf8'));
 const c = {
  ...input,
@@ -9,7 +9,7 @@ const c = {
  advisor_output_usd_per_million: input.advisor_output_usd_per_million ?? 0,
  enable_customer_view: false, customer_view_customer: 'customer',
  customer_view_schema: `${input.catalog}.${input.schema}`, dashboard_embed_url: '',
- customers: [{id:'customer', name:input.customer_name ?? 'My customer',
+ customers: [{id:'customer', name:input.display_name ?? 'My workspace',
   genie_space_id:input.genie_space_id, catalog:input.catalog, schema:input.schema,
   questions:input.questions ?? ['Summarize the key metrics available in this data.']}],
 };
@@ -38,14 +38,14 @@ if (!example) assert(c.warehouse_id !== '0000000000000000' && c.customers.every(
 const browser = Object.fromEntries(['customer_view_customer','enable_customer_view','dashboard_embed_url','advisor_endpoint','advisor_input_usd_per_million','advisor_output_usd_per_million'].map(k=>[k,c[k]]));
 browser.customers = c.customers.map(({id,name,questions})=>({id,name,questions}));
 writeFileSync('server/deployment-config.json', JSON.stringify(c,null,2)+'\n');
-writeFileSync('client/src/customer-config.json', JSON.stringify(browser,null,2)+'\n');
+writeFileSync('client/src/app-config.json', JSON.stringify(browser,null,2)+'\n');
 // JSON is valid YAML and avoids interpolation/escaping bugs in customer-supplied labels.
 const resources = [
  {name:'sql-warehouse', sql_warehouse:{id:c.warehouse_id,permission:'CAN_USE'}},
  {name:'advisor-model',serving_endpoint:{name:c.advisor_endpoint,permission:'CAN_QUERY'}},
  ...c.customers.map((t,i)=>({name:`customer-genie-${i+1}`,genie_space:{name:t.name,space_id:t.genie_space_id,permission:'CAN_RUN'}})),
 ];
-const bundle = {bundle:{name:'genie-query-builder'},sync:{include:['runtime/**'],exclude:['node_modules/**','client/**','server/**','scripts/**','customer-config.json','.env*']},resources:{apps:{app:{name:c.app_name,description:'Natural language SQL builder and usage tracking',source_code_path:'./runtime',resources}}},targets:{dev:{default:true}}};
+const bundle = {bundle:{name:'genie-query-builder'},sync:{include:['runtime/**'],exclude:['node_modules/**','client/**','server/**','scripts/**','app-config.json','.env*']},resources:{apps:{app:{name:c.app_name,description:'Natural language SQL builder and usage tracking',source_code_path:'./runtime',resources}}},targets:{dev:{default:true}}};
 writeFileSync('databricks.yml',JSON.stringify(bundle,null,2)+'\n');
 mkdirSync('runtime',{recursive:true});
 writeFileSync('runtime/app.yaml', 'command: ["node", "dist/server.js"]\nenv:\n  - name: NODE_ENV\n    value: production\n  - name: DATABRICKS_WAREHOUSE_ID\n    valueFrom: sql-warehouse\n');

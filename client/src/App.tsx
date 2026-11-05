@@ -1,4 +1,4 @@
-import publicConfig from './customer-config.json';
+import publicConfig from './app-config.json';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, FormEvent } from 'react';
 import { AlertCircle, BarChart2, Copy, Info, Sparkles, TriangleAlert } from 'lucide-react';

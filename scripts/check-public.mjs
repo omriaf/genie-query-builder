@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 const excluded = new Set(['node_modules','dist','runtime','.git','.databricks','release']);
-const localFiles = new Set(['customer-config.json','server/deployment-config.json','client/src/customer-config.json','databricks.yml']);
+const localFiles = new Set(['app-config.json','server/deployment-config.json','client/src/app-config.json','databricks.yml']);
 const rules = [
  /https?:\/\/npm-proxy\.[^\s"']+/i,
  /https?:\/\/adb-\d+\.[^\s"']+/i,

@@ -1,4 +1,4 @@
-import publicConfig from '../customer-config.json';
+import publicConfig from '../app-config.json';
 import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Clock3, DollarSign, RefreshCw, Star, TrendingUp, Users } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
